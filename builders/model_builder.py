@@ -1,11 +1,15 @@
+r"""Builder for segmentation models."""
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+
+from architectures import icnet_architecture
+from architectures import pspnet_architecture
 from builders import hyperparams_builder
 from builders import losses_builder
-from protos import model_pb2
-
-from extractors import pspnet_icnet_resnet_v1
 from extractors import pspnet_icnet_mobilenet_v2
-from architectures import pspnet_architecture
-from architectures import icnet_architecture
+from extractors import pspnet_icnet_resnet_v1
+from protos import model_pb2
 
 
 PSPNET_ICNET_FEATURE_EXTRACTER = {
@@ -33,6 +37,7 @@ def _build_pspnet_icnet_extractor(
                                    mid_downsample=mid_downsample,
                                    reuse_weights=reuse_weights)
 
+
 def _build_pspnet_icnet_model(model_config, is_training, add_summaries,
                               build_baseline_psp=False):
     num_classes = model_config.num_classes
@@ -50,22 +55,21 @@ def _build_pspnet_icnet_model(model_config, is_training, add_summaries,
         should_downsample_extractor = not pretrain_single_branch_mode
 
     feature_extractor = _build_pspnet_icnet_extractor(
-            model_config.feature_extractor, filter_scale, is_training,
-            mid_downsample=should_downsample_extractor)
+        model_config.feature_extractor, filter_scale, is_training,
+        mid_downsample=should_downsample_extractor)
 
     model_arg_scope = hyperparams_builder.build(model_config.hyperparams,
                                                 is_training)
 
     loss_config = model_config.loss
     classification_loss = (
-            losses_builder.build(loss_config))
+        losses_builder.build(loss_config))
     use_aux_loss = loss_config.use_auxiliary_loss
 
     common_kwargs = {
         'is_training': is_training,
         'num_classes': num_classes,
         'model_arg_scope': model_arg_scope,
-        'num_classes': num_classes,
         'feature_extractor': feature_extractor,
         'classification_loss': classification_loss,
         'use_aux_loss': use_aux_loss,
@@ -95,6 +99,7 @@ def _build_pspnet_icnet_model(model_config, is_training, add_summaries,
         model = (num_classes, pspnet_architecture.PSPNetArchitecture(
             filter_scale=filter_scale,
             **common_kwargs))
+
     return model
 
 
